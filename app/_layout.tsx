@@ -4,6 +4,9 @@ import { queryClient } from '../src/config/queryClient';
 import { useAuthStore } from '../src/store/authStore';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { COLORS } from '../src/config/constants';
 
 export default function RootLayout() {
   const loadToken = useAuthStore((state) => state.loadToken);
@@ -14,10 +17,15 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack>
-        {/* Your screens will be defined here, but since you use Expo Router, you just need the provider */}
-        {/* The Stack will be automatically populated by Expo Router */}
-      </Stack>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <SafeAreaView
+          edges={['bottom']}
+          style={{ flex: 1, backgroundColor: COLORS.background }}
+        >
+          <Stack screenOptions={{headerShown:false}}/>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </QueryClientProvider>
   );
 }

@@ -26,7 +26,7 @@ export default {
     web: {
       output: "static",
       favicon: "./assets/images/favicon.png",
-      "bundler":"metro"
+      bundler: "metro",               // moved inside web object
     },
     plugins: [
       "expo-router",
@@ -40,6 +40,13 @@ export default {
           dark: {
             backgroundColor: "#000000",
           },
+        },
+      ],
+      [
+        "expo-secure-store",
+        {
+          configureAndroidBackup: true,
+          faceIDPermission: "Allow $(PRODUCT_NAME) to access your Face ID biometric data.",
         },
       ],
     ],
