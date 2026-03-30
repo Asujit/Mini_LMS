@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9fafb;
+            color: #111827;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #0e1e41;
+        }
+        .instructor {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        .content {
+            line-height: 1.6;
+            margin-top: 1rem;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #e5e7eb;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="courseTitle">Course Title</h1>
+        <div class="instructor" id="instructor">Instructor</div>
+        <div class="badge" id="duration">Duration</div>
+        <div class="content" id="description">
+            Loading course details...
+        </div>
+    </div>
+    <script>
+    
+        window.updateContent = function(data) {
+            if (data.title) document.getElementById('courseTitle').innerText = data.title;
+            if (data.instructor) document.getElementById('instructor').innerHTML = `👩‍🏫 ${data.instructor}`;
+            if (data.duration) document.getElementById('duration').innerText = data.duration;
+            if (data.description) document.getElementById('description').innerHTML = data.description;
+        };
+        
+    </script>
+</body>
+</html>

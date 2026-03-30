@@ -13,36 +13,56 @@ import { router } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/src/config/constants";
+import { loginApi } from "@/src/api/authApi";
+import { useAuthStore } from "@/src/store/authStore";
+import { useState } from "react";
 
-// Validation schema
 const loginSchema = yup.object({
-  email: yup.string().email("Invalid email address").required("Email is required"),
-  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  username: yup
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .required("Username is required"),
+  password: yup
+    .string()
+    .min(5, "Password must be at least 5 characters")
+    .required("Password is required"),
 });
 
 type LoginFormData = yup.InferType<typeof loginSchema>;
 
 export default function LoginScreen() {
+  const [showPassword, setShowPassword] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { username: "", password: "" },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Simulate API call – replace with actual auth logic later
-      console.log("Login data:", data);
-      // await loginApi(data.email, data.password);
-      Alert.alert("Success", "Logged in successfully!", [
-        { text: "OK", onPress: () => router.replace("/(tabs)/Index") },
-      ]);
-    } catch (error) {
-      Alert.alert("Error", "Invalid credentials. Please try again.");
+      const response = await loginApi({
+        username: data.username,
+        password: data.password,
+      });
+      const { accessToken, user } = response.data.data;
+      const mappedUser = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar?.url,
+        role: user.role,
+      };
+      await useAuthStore.getState().login(accessToken, mappedUser);
+      router.replace("/(tabs)/Index");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Login failed. Please try again.";
+      Alert.alert("Error", message);
     }
   };
 
@@ -64,57 +84,72 @@ export default function LoginScreen() {
               Please sign in to continue
             </Text>
 
-            {/* Email Field */}
             <View className="mb-5">
               <Controller
                 control={control}
-                name="email"
+                name="username"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     className={`border rounded-2xl px-5 py-4 bg-card text-textPrimary text-base ${
-                      errors.email ? "border-danger" : "border-border"
+                      errors.username ? "border-danger" : "border-border"
                     }`}
-                    placeholder="Email"
+                    placeholder="Username"
                     placeholderTextColor={COLORS.textSecondary}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
                     autoCapitalize="none"
-                    keyboardType="email-address"
                   />
                 )}
               />
-              {errors.email && (
-                <Text className="text-danger text-sm mt-1">{errors.email.message}</Text>
+              {errors.username && (
+                <Text className="text-danger text-sm mt-1">
+                  {errors.username.message}
+                </Text>
               )}
             </View>
 
-            {/* Password Field */}
             <View className="mb-3">
               <Controller
                 control={control}
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    className={`border rounded-2xl px-5 py-4 bg-card text-textPrimary text-base ${
-                      errors.password ? "border-danger" : "border-border"
-                    }`}
-                    placeholder="Password"
-                    placeholderTextColor={COLORS.textSecondary}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    secureTextEntry
-                  />
+                  <View className="relative">
+                    <TextInput
+                      className={`border rounded-2xl px-5 py-4 pr-12 bg-card text-textPrimary text-base ${
+                        errors.password ? "border-danger" : "border-border"
+                      }`}
+                      placeholder="Password"
+                      placeholderTextColor={COLORS.textSecondary}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      secureTextEntry={!showPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2"
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={24}
+                        color={COLORS.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  </View>
                 )}
               />
               {errors.password && (
-                <Text className="text-danger text-sm mt-1">{errors.password.message}</Text>
+                <Text className="text-danger text-sm mt-1">
+                  {errors.password.message}
+                </Text>
               )}
             </View>
 
             <TouchableOpacity className="self-end mb-8">
-              <Text className="text-primary font-medium text-base">Forgot Password?</Text>
+              <Text className="text-primary font-medium text-base">
+                Forgot Password?
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -131,9 +166,13 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-row justify-center pb-8">
-            <Text className="text-textSecondary text-base">Don't have an account? </Text>
+            <Text className="text-textSecondary text-base">
+              Don't have an account?{" "}
+            </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-              <Text className="text-primary font-semibold text-base">Sign Up</Text>
+              <Text className="text-primary font-semibold text-base">
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

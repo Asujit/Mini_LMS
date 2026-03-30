@@ -4,14 +4,12 @@ export interface Product {
   description: string;
   image: string;
   price?: number;
-  // other fields from randomproducts API
 }
 
 export interface User {
   id: string;
   name: string;
   email?: string;
-  // other fields from randomusers API
 }
 
 export interface MergedCourse {

@@ -1,20 +1,33 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert, useWindowDimensions } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/src/config/constants';
-import { useEnrollmentStore } from '@/src/store/enrollmentStore';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  useWindowDimensions,
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router"; 
+import { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/src/config/constants";
+import { useEnrollmentStore } from "@/src/store/enrollmentStore";
+import { showEnrollmentNotification } from "@/src/services/notificationService";
 
 export default function CourseDetailScreen() {
-  const { id, title, price, imageUrl } = useLocalSearchParams<{
-    id: string;
-    title: string;
-    price: string;
-    imageUrl: string;
-  }>();
+  const { id, title, price, imageUrl, description, instructor } =
+    useLocalSearchParams<{
+      id: string;
+      title: string;
+      price: string;
+      imageUrl: string;
+      description?: string;
+      instructor?: string;
+    }>();
   const { height } = useWindowDimensions();
   const { enroll, isEnrolled } = useEnrollmentStore();
   const [enrolled, setEnrolled] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -22,34 +35,56 @@ export default function CourseDetailScreen() {
     }
   }, [id, isEnrolled]);
 
-  const instructor = 'John Doe';
-  const duration = '8 hours';
+
+  const duration = "8 hours";
   const lessons = 42;
   const rating = 4.8;
   const enrolledCount = 1234;
-  const description = 'Learn React Native from scratch with hands-on projects. Build real-world mobile apps for iOS and Android using Expo and modern best practices. This course covers navigation, state management, animations, and deployment.';
 
   const handleEnroll = () => {
     if (!enrolled) {
       enroll(id);
       setEnrolled(true);
+      showEnrollmentNotification(title as string);
       Alert.alert('Success', 'You have been enrolled in this course!');
     }
   };
 
+  const handlePlay = () => {
+  router.push({
+    pathname: '/webview/viewer',
+    params: {
+      title: title,
+      instructor: instructor,
+      description: description,
+      duration: '8 hours',
+    },
+  });
+};
+
+
+  const finalImageUrl = imageError ? "https://picsum.photos/400/300" : imageUrl;
+
   return (
     <ScrollView className="flex-1 bg-background">
       <Image
-        source={{ uri: imageUrl }}
-        style={{ width: '100%', height: height * 0.4 }}
+        source={{ uri: finalImageUrl }}
+        style={{ width: "100%", height: height * 0.4 }}
         resizeMode="contain"
+        onError={(e) => {
+          setImageError(true);
+        }}
       />
       <View className="px-5 pt-5 pb-8">
-        <Text className="text-3xl font-bold text-textPrimary mb-2">{title}</Text>
+        <Text className="text-3xl font-bold text-textPrimary mb-2">
+          {title}
+        </Text>
 
         <View className="flex-row flex-wrap items-center mb-4">
           <Ionicons name="person-outline" size={18} color={COLORS.textSecondary} />
-          <Text className="text-textSecondary ml-1 mr-4">{instructor}</Text>
+          <Text className="text-textSecondary ml-1 mr-4">
+            {instructor || "Unknown Instructor"}
+          </Text>
           <Ionicons name="time-outline" size={18} color={COLORS.textSecondary} />
           <Text className="text-textSecondary ml-1 mr-4">{duration}</Text>
           <Ionicons name="book-outline" size={18} color={COLORS.textSecondary} />
@@ -64,22 +99,34 @@ export default function CourseDetailScreen() {
         </View>
 
         <Text className="text-lg font-semibold text-textPrimary mb-2">Description</Text>
-        <Text className="text-textSecondary leading-6 mb-6">{description}</Text>
+        <Text className="text-textSecondary leading-6 mb-6">
+          {description || "No description available"}
+        </Text>
 
         <View className="flex-row items-center justify-between mt-2">
           <View className="flex-row items-center">
             <Ionicons name="cash-outline" size={24} color={COLORS.primary} />
-            <Text className="text-2xl font-bold text-primary ml-1">${parseFloat(price).toFixed(2)}</Text>
-          </View>
-          <TouchableOpacity
-            className={`px-8 py-3 rounded-xl ${enrolled ? 'bg-success' : 'bg-primary'}`}
-            onPress={handleEnroll}
-            disabled={enrolled}
-          >
-            <Text className="text-white font-semibold text-lg">
-              {enrolled ? 'Enrolled ✓' : 'Enroll Now'}
+            <Text className="text-2xl font-bold text-primary ml-1">
+              ${parseFloat(price).toFixed(2)}
             </Text>
-          </TouchableOpacity>
+          </View>
+
+          {!enrolled ? (
+            <TouchableOpacity
+              className="bg-primary px-8 py-3 rounded-xl"
+              onPress={handleEnroll}
+            >
+              <Text className="text-white font-semibold text-lg">Enroll Now</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="bg-success px-8 py-3 rounded-xl flex-row items-center"
+              onPress={handlePlay}
+            >
+              <Ionicons name="play" size={20} color="white" />
+              <Text className="text-white font-semibold text-lg ml-2">Play</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </ScrollView>

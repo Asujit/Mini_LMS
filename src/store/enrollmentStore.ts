@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface EnrollmentState {
-  enrolledCourses: string[]; // array of course IDs
+  enrolledCourses: string[];
   enroll: (courseId: string) => void;
   isEnrolled: (courseId: string) => boolean;
   getEnrolledCount: () => number;

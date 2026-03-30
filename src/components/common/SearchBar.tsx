@@ -1,7 +1,7 @@
-import { TextInput, View } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '@/src/config/constants';
+import { TextInput, View } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/src/config/constants";
 
 interface SearchBarProps {
   onSearch: (text: string) => void;
@@ -9,11 +9,14 @@ interface SearchBarProps {
   debounceDelay?: number;
 }
 
-export default function SearchBar({ onSearch, placeholder = "Search courses...", debounceDelay = 300 }: SearchBarProps) {
-  const [query, setQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+export default function SearchBar({
+  onSearch,
+  placeholder = "Search courses...",
+  debounceDelay = 300,
+}: SearchBarProps) {
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  // Debounce logic
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(query);
@@ -22,7 +25,6 @@ export default function SearchBar({ onSearch, placeholder = "Search courses...",
     return () => clearTimeout(handler);
   }, [query, debounceDelay]);
 
-  // Call onSearch when debouncedQuery changes
   useEffect(() => {
     onSearch(debouncedQuery);
   }, [debouncedQuery, onSearch]);

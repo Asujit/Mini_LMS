@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import { COLORS } from '@/src/config/constants';
 
 interface BookmarkCardProps {
@@ -20,6 +21,13 @@ export default function BookmarkCard({
   onPress,
   onRemove,
 }: BookmarkCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  
+  const source = imageError || !imageUrl
+    ? require('@/assets/images/react-logo.png')
+    : { uri: imageUrl };
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -27,27 +35,28 @@ export default function BookmarkCard({
       className="flex-row bg-card rounded-2xl mb-5 overflow-hidden border border-border"
       style={{ elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}
     >
-      {/* Left Image - 30% width, full height */}
+      
       <Image
-        source={imageUrl ? { uri: imageUrl } : require('@/assets/images/react-logo.png')}
+        source={source}
         className="w-[30%] h-36"
         resizeMode="cover"
+        onError={() => setImageError(true)}
       />
 
-      {/* Right Content - 70% width */}
+      
       <View className="flex-1 p-4 justify-between">
         <View>
           <Text className="text-textPrimary font-bold text-lg mb-2" numberOfLines={2}>
             {title}
           </Text>
           
-          {/* Instructor row */}
+          
           <View className="flex-row items-center mb-1.5">
             <Ionicons name="person-outline" size={16} color={COLORS.textSecondary} />
             <Text className="text-textSecondary text-sm ml-2">{instructor}</Text>
           </View>
           
-          {/* Duration row */}
+          
           <View className="flex-row items-center">
             <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
             <Text className="text-textSecondary text-sm ml-2">{duration}</Text>
@@ -55,7 +64,7 @@ export default function BookmarkCard({
         </View>
       </View>
 
-      {/* Remove bookmark button */}
+      
       <TouchableOpacity
         onPress={(e) => {
           e.stopPropagation();

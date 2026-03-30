@@ -11,9 +11,11 @@ export default {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
+      bundleIdentifier: "com.lms.minilms",
       supportsTablet: true,
     },
     android: {
+      package: "com.lms.minilms",
       adaptiveIcon: {
         backgroundColor: "#E6F4FE",
         foregroundImage: "./assets/images/android-icon-foreground.png",
@@ -26,7 +28,7 @@ export default {
     web: {
       output: "static",
       favicon: "./assets/images/favicon.png",
-      bundler: "metro",               // moved inside web object
+      bundler: "metro",
     },
     plugins: [
       "expo-router",
@@ -49,6 +51,12 @@ export default {
           faceIDPermission: "Allow $(PRODUCT_NAME) to access your Face ID biometric data.",
         },
       ],
+      [
+    "expo-notifications",
+    {
+      icon: "./assets/images/bell.png",
+    },
+  ],
     ],
     experiments: {
       typedRoutes: true,

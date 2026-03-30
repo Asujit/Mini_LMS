@@ -5,15 +5,15 @@ export default function CourseLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: COLORS.background }, // light background
-        headerTintColor: COLORS.textPrimary,                // back button & title color
+        headerStyle: { backgroundColor: COLORS.background },
+        headerTintColor: COLORS.textPrimary,                
         headerTitleStyle: { 
           color: COLORS.textPrimary,
           fontWeight: '600',
         },
-        headerTitleAlign: 'center',                         // center the title
+        headerTitleAlign: 'center',                         
         headerBackTitle: 'Back', 
-        headerTitle: "Course Details"                           // iOS back button text
+        headerTitle: "Course Details"                           
       }}
     />
   );

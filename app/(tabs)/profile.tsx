@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert, ScrollView, RefreshControl } from 'react-native';
+import { useState, useCallback } from 'react';
 import { useAuthStore } from '@/src/store/authStore';
 import { useCourseStore } from '@/src/store/courseStore';
 import { useEnrollmentStore } from '@/src/store/enrollmentStore';
@@ -9,10 +9,11 @@ import { COLORS } from '@/src/config/constants';
 import { router } from 'expo-router';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateAvatar } = useAuthStore();
   const { bookmarks } = useCourseStore();
   const { getEnrolledCount } = useEnrollmentStore();
-  const [profileImage, setProfileImage] = useState<string | undefined>(user?.avatar);
+
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleLogout = async () => {
     Alert.alert(
@@ -32,23 +33,32 @@ export default function ProfileScreen() {
     );
   };
 
-  // For demo, if user is not logged in, show placeholder
-  const displayName = user?.name || 'John Doe';
-  const displayEmail = user?.email || 'john.doe@example.com';
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 500);
+  }, []);
+
+  const displayName = user?.username || 'User';
+  const displayEmail = user?.email || 'user@example.com';
 
   return (
-    <View className="flex-1 bg-background">
-      <View className="flex-1 px-5 pt-8">
-        {/* Profile Image Picker */}
+    <ScrollView
+      className="flex-1 bg-background"
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[COLORS.primary]}
+          tintColor={COLORS.primary}
+        />
+      }
+    >
+      <View className="px-5 pt-8">
         <ProfileImagePicker
-          currentImage={profileImage}
-          onImageSelected={(uri) => {
-            setProfileImage(uri);
-            // Optionally save to auth store or separate storage
-          }}
+          currentImage={user?.avatar}
+          onImageSelected={(uri) => updateAvatar(uri)}
         />
 
-        {/* Name and Email */}
         <Text className="text-2xl font-bold text-textPrimary text-center mb-1">
           {displayName}
         </Text>
@@ -56,7 +66,6 @@ export default function ProfileScreen() {
           {displayEmail}
         </Text>
 
-        {/* Statistics Cards Row */}
         <View className="flex-row mb-8">
           <StatCard
             title="Courses Enrolled"
@@ -72,15 +81,14 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* Logout Button */}
         <TouchableOpacity
           onPress={handleLogout}
-          className="bg-danger rounded-xl py-3 items-center mt-4"
+          className="bg-danger rounded-xl py-3 items-center mt-4 mb-8"
           activeOpacity={0.8}
         >
           <Text className="text-white font-semibold text-lg">Logout</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
