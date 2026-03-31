@@ -24,6 +24,7 @@ export default {
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
+      usesCleartextTraffic: true,
     },
     web: {
       output: "static",
@@ -53,9 +54,6 @@ export default {
       ],
       [
     "expo-notifications",
-    {
-      icon: "./assets/images/bell.png",
-    },
   ],
     ],
     experiments: {
@@ -64,6 +62,9 @@ export default {
     },
     extra: {
       API_BASE_URL: process.env.API_BASE_URL,
+      eas: {
+        projectId: "29c906a7-ac45-4a7b-a55a-13fee0d45ae1"
+      }
     },
   },
 };
